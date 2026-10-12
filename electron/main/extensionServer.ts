@@ -36,7 +36,7 @@ const DEFAULT_PORT = 38472
 /** 基础响应头(不含 ACAO;ACAO 按请求来源动态计算) */
 const BASE_RESPONSE_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-PromptMan-Extension',
   'Content-Type': 'application/json; charset=utf-8',
 }
 
@@ -432,9 +432,11 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   // ---- 鉴权门(OPTIONS 处理之后、任何路由之前)----
   // 放行条件(任一):(1) /api/health(供 CLI/插件探测);(2) Authorization 通过
   // isValidBearerToken(本地 CLI/脚本);(3) Origin 为 chrome-extension://(MV3 扩展豁免)
+  // (4) Origin 缺失但带扩展专用标记(兼容部分 Chromium 版本的扩展 fetch)
   const origin = req.headers.origin
   const isExtensionOrigin = typeof origin === 'string' && origin.startsWith('chrome-extension://')
-  if (pathname !== '/api/health' && !isExtensionOrigin && !isValidBearerToken(req.headers.authorization)) {
+  const isExtensionRequestWithoutOrigin = origin === undefined && req.headers['x-promptman-extension'] === '1'
+  if (pathname !== '/api/health' && !isExtensionOrigin && !isExtensionRequestWithoutOrigin && !isValidBearerToken(req.headers.authorization)) {
     sendJson(res, headers, 401, { ok: false, error: 'Unauthorized' })
     return
   }
