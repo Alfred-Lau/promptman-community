@@ -99,7 +99,6 @@ export default function BootLoader() {
     const el = rootRef.current
     if (!el) return
     let exited = false
-    let fallback: number | undefined
 
     const exit = () => {
       if (exited) return
@@ -112,7 +111,7 @@ export default function BootLoader() {
     }
 
     // 兜底:资源挂起导致 window load 迟迟不来时,最迟 10s 淡出
-    fallback = window.setTimeout(exit, 10000)
+    const fallback = window.setTimeout(exit, 10000)
 
     if (document.readyState === 'complete') {
       // load 已触发过(hydration 晚于 load),立即淡出
