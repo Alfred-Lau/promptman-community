@@ -1,0 +1,153 @@
+name: Release
+
+# 触发：推送 v*.*.* 标签
+# 示例：git tag v1.2.3 && git push origin v1.2.3
+#
+# 架构（源码仓公开后）：
+#   - 本仓库 Alfred-Lau/promptman-community：源码 + CI + GitHub Releases（star / 下载主入口）
+#   - 旧的 Alfred-Lau/promptman-releases 可保留为历史镜像；新版本以本仓 Releases 为准
+#
+# 前置 Secrets（签名 / 公证，可选但强烈建议）：
+#   CSC_LINK, CSC_KEY_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID
+#   WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD（可选）
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Draft Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches package.json version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "tag=${TAG}  package.json version=${VERSION}"
+          if [ "${TAG}" != "v${VERSION}" ]; then
+            echo "::error::Release tag must be v{package.json version} (got ${TAG}, expected v${VERSION})"
+            exit 1
+          fi
+
+      - name: Create draft release in this repository
+        id: create
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: PromptMan ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-mac:
+    name: Build macOS (arm64)
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Next.js
+        run: pnpm build:next
+
+      - name: Prune standalone (macOS sharp cleanup)
+        run: node scripts/prune-standalone.js
+
+      - name: Copy static files
+        run: pnpm copy-static
+
+      - name: Compile Electron TypeScript
+        run: pnpm exec tsc -p electron/tsconfig.json
+
+      - name: Copy splash screen
+        run: node scripts/copy-splash.js
+
+      - name: Build & publish to GitHub Releases
+        run: node scripts/publish-to-github.js --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' && 'true' || 'false' }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+  build-win:
+    name: Build Windows (x64)
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Next.js
+        run: pnpm build:next
+
+      - name: Copy static files
+        run: pnpm copy-static
+
+      - name: Compile Electron TypeScript
+        run: pnpm exec tsc -p electron/tsconfig.json
+
+      - name: Copy splash screen
+        run: node scripts/copy-splash.js
+
+      - name: Build & publish to GitHub Releases
+        run: node scripts/publish-to-github.js --win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+  publish-release:
+    name: Publish Release
+    needs: [create-release, build-mac, build-win]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish draft release
+        uses: actions/github-script@v7
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+          TAG_NAME: ${{ github.ref_name }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
+            await github.rest.repos.updateRelease({
+              owner,
+              repo,
+              release_id: Number(process.env.RELEASE_ID),
+              draft: false,
+            })
+            console.log(`Release ${process.env.TAG_NAME} published to ${owner}/${repo}.`)

@@ -1,0 +1,5 @@
+# 允许 electron 运行构建脚本
+enable-pre-post-scripts=true
+# 明确允许 electron 的构建脚本
+onlyBuiltDependencies=electron
+

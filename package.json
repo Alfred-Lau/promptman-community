@@ -1,0 +1,289 @@
+{
+  "name": "promptman",
+  "version": "0.1.8",
+  "description": "Local-first desktop app for AI prompts, agent skills, and teams",
+  "main": "dist-electron/main/index.js",
+  "author": "OFX Labs",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://prompt.solokit.run",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alfred-Lau/promptman-community.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Alfred-Lau/promptman-community/issues"
+  },
+  "keywords": [
+    "promptman",
+    "prompt-engineering",
+    "electron",
+    "local-first",
+    "ai-agents",
+    "semantic-search"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:next": "next dev -p 4001",
+    "dev:electron": "pnpm exec tsc -p electron/tsconfig.json && electron .",
+    "dev:watch": "tsc -p electron/tsconfig.json --watch --preserveWatchOutput",
+    "build": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && pnpm build:electron",
+    "build:next": "next build",
+    "copy-static": "node scripts/copy-static.js",
+    "flatten-standalone": "node scripts/flatten-standalone.js",
+    "build:electron": "tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js",
+    "build:electron:dir": "tsc -p electron/tsconfig.json && node scripts/electron-builder-with-date.js --dir",
+    "build:mac": "pnpm build:next && node scripts/prune-standalone.js && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --mac --publish never",
+    "build:mac:unsigned": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --mac --publish never --config.mac.identity=null",
+    "build:win": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --win --publish never",
+    "build:all": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --mac --win --publish never",
+    "publish:mac": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --mac --publish always",
+    "publish:win": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --win --publish always",
+    "publish:all": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/electron-builder-with-date.js --mac --win --publish always",
+    "publish:oss:mac": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/publish-to-oss.js --mac",
+    "publish:oss:win": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/publish-to-oss.js --win",
+    "publish:oss:all": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/publish-to-oss.js --mac --win",
+    "release:oss:mac": "pnpm exec dotenv -e .env -- pnpm run publish:oss:mac",
+    "release:oss:win": "pnpm exec dotenv -e .env -- pnpm run publish:oss:win",
+    "release:oss:all": "pnpm exec dotenv -e .env -- pnpm run publish:oss:all",
+    "prefetch:dmgbuild": "node scripts/prefetch-dmgbuild.js",
+    "publish:github:mac": "pnpm build:next && node scripts/prune-standalone.js && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/prefetch-dmgbuild.js && node scripts/publish-to-github.js --mac",
+    "publish:github:win": "pnpm build:next && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/publish-to-github.js --win",
+    "publish:github:all": "pnpm build:next && node scripts/prune-standalone.js && pnpm flatten-standalone && pnpm copy-static && tsc -p electron/tsconfig.json && node scripts/copy-splash.js && node scripts/prefetch-dmgbuild.js --all && node scripts/publish-to-github.js --mac --win",
+    "release:github:mac": "pnpm exec dotenv -e .env -- pnpm run publish:github:mac",
+    "release:github:win": "pnpm exec dotenv -e .env -- pnpm run publish:github:win",
+    "release:github:all": "pnpm exec dotenv -e .env -- pnpm run publish:github:all",
+    "version:patch": "pnpm version patch",
+    "version:minor": "pnpm version minor",
+    "version:major": "pnpm version major",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit",
+    "cli": "node cli/promptman.js",
+    "clear-cache": "node scripts/clear-model-cache.js",
+    "postinstall": "electron-builder install-app-deps && node scripts/patch-mac-codesign.js"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.5.1",
+    "better-sqlite3": "^12.8.0",
+    "electron-updater": "^6.7.3",
+    "lucide-react": "^0.562.0",
+    "next": "^16.0.0",
+    "onnxruntime-node": "^1.22.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "semver": "^7.7.3",
+    "sqlite-vec": "0.1.7-alpha.2"
+  },
+  "devDependencies": {
+    "@electron/notarize": "^3.1.1",
+    "@eslint/eslintrc": "^3.3.5",
+    "@types/ali-oss": "^6.23.3",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.11.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "ali-oss": "^6.23.0",
+    "concurrently": "^8.2.2",
+    "dotenv-cli": "^11.0.0",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.9.0",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.3",
+    "wait-on": "^7.2.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "onnxruntime-node",
+      "better-sqlite3"
+    ]
+  },
+  "build": {
+    "appId": "com.promptman.app",
+    "productName": "PromptMan",
+    "afterPack": "scripts/after-pack-prune-darwin-native.js",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*.node",
+      "node_modules/better-sqlite3/build/**/*",
+      "node_modules/better-sqlite3/package.json",
+      "node_modules/sqlite-vec/**/*",
+      "node_modules/sqlite-vec-darwin-x64/**/*",
+      "node_modules/sqlite-vec-darwin-arm64/**/*",
+      "node_modules/sqlite-vec-win32-x64/**/*",
+      "node_modules/sqlite-vec-linux-x64/**/*",
+      "node_modules/onnxruntime-node/bin/**/*",
+      "node_modules/onnxruntime-node/dist/**/*",
+      "node_modules/onnxruntime-node/lib/**/*",
+      "node_modules/onnxruntime-node/package.json",
+      "node_modules/@huggingface/transformers/dist/**/*",
+      "node_modules/@huggingface/transformers/src/**/*",
+      "node_modules/@huggingface/transformers/package.json",
+      "dist-electron/**/*"
+    ],
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "package.json",
+      "node_modules/**/*",
+      "!dist/**/*",
+      "!node_modules/@types/**/*",
+      "!node_modules/onnxruntime-web/**/*",
+      "!node_modules/sharp/**/*",
+      "!node_modules/prebuild-install/**/*",
+      "!node_modules/node-abi/**/*",
+      "!node_modules/napi-build-utils/**/*",
+      "!node_modules/tar/**/*",
+      "!node_modules/tar-fs/**/*",
+      "!node_modules/tar-stream/**/*",
+      "!node_modules/simple-get/**/*",
+      "!node_modules/simple-concat/**/*",
+      "!node_modules/github-from-package/**/*",
+      "!node_modules/expand-template/**/*",
+      "!node_modules/detect-libc/**/*",
+      "!node_modules/mkdirp-classic/**/*",
+      "!node_modules/pump/**/*",
+      "!node_modules/**/*.md",
+      "!node_modules/**/CHANGELOG*",
+      "!node_modules/**/LICENSE*",
+      "!node_modules/**/README*",
+      "!node_modules/**/*.d.ts",
+      "!node_modules/**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "public/icon.png",
+        "to": "assets/tray-icon.png"
+      },
+      {
+        "from": "cli/promptman.js",
+        "to": "cli/promptman.js"
+      }
+    ],
+    "extraFiles": [
+      {
+        "from": "dist/standalone",
+        "to": "resources/standalone",
+        "filter": [
+          "**/*",
+          "!node_modules",
+          "!node_modules/**/*",
+          "!**/sharp/**/*",
+          "!**/@img/**/*",
+          "!**/*sharp*/**/*"
+        ]
+      },
+      {
+        "from": "dist/standalone/node_modules",
+        "to": "resources/standalone/node_modules",
+        "filter": [
+          "**/*",
+          "!**/sharp/**/*",
+          "!**/@img/**/*",
+          "!**/*sharp*/**/*"
+        ]
+      },
+      {
+        "from": "dist/static",
+        "to": "resources/static",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "node_modules/sqlite-vec",
+        "to": "resources/sqlite-vec",
+        "filter": [
+          "*.node",
+          "*.dylib",
+          "*.dll",
+          "*.so",
+          "index.cjs",
+          "index.mjs",
+          "package.json"
+        ]
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Alfred-Lau",
+        "repo": "promptman-community",
+        "releaseType": "draft",
+        "vPrefixedTagName": true
+      }
+    ],
+    "afterSign": "scripts/notarize.js",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${env.BUILD_DATE}-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${env.BUILD_DATE}-win-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PromptMan",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "artifactName": "${productName}-${version}-${env.BUILD_DATE}-linux-${arch}.${ext}"
+    }
+  }
+}

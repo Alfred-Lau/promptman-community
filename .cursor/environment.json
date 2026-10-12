@@ -1,0 +1,10 @@
+{
+  "$schema": "https://www.cursor.com/schemas/environment.schema.json",
+  "name": "promptman-cloud-agent",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "corepack enable && corepack prepare pnpm@10.26.0 --activate && (pnpm install --frozen-lockfile || pnpm install)",
+  "start": "corepack enable && pnpm --version"
+}

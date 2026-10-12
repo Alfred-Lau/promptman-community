@@ -1,0 +1,11 @@
+{
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "Alfred-Lau",
+      "repo": "promptman",
+      "releaseType": "draft",
+      "vPrefixedTagName": false
+    }
+  ]
+}

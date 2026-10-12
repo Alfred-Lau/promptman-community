@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: PromptMan website / PromptHub
+    url: https://prompt.solokit.run/
+    about: Product site, cloud sync, and account help
+  - name: Security vulnerability
+    url: https://github.com/Alfred-Lau/promptman-community/security/advisories/new
+    about: Privately report a security issue (do not open a public issue)
