@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Pencil, Trash2, Check, X, FolderOpen, Folder, Tag, Cloud } from 'lucide-react'
+import { Plus, Pencil, Trash2, Check, X, FolderOpen, Folder, Tag, Cloud, Download } from 'lucide-react'
 import { libraryAPI, tagAPI } from '@/lib/seekdb/api'
 import type { CloudLibraryFolder } from '@/lib/seekdb/api'
 import type { LibraryItem, TagDefinition } from '@/lib/seekdb/types'
@@ -27,6 +27,8 @@ interface LibrarySidebarProps {
   onToggleTag?: (tagId: string) => void
   /** 清空标签筛选（「全部标签」项） */
   onClearTagFilter?: () => void
+  /** 导出库为 Agent Skill（references 生成模式） */
+  onExportSkill?: (libraryId: string) => void
   onTagsChanged?: () => void
   currentUser?: { id?: string | number; name?: string | null } | null
   /** PromptHub 云端是否已关联（token 有效） */
@@ -47,6 +49,7 @@ export default function LibrarySidebar({
   selectedTagIds = [],
   onToggleTag,
   onClearTagFilter,
+  onExportSkill,
   onTagsChanged,
   currentUser,
   promptHubCloudLinked,
@@ -221,6 +224,11 @@ export default function LibrarySidebar({
                 <button className="lib-action-btn" onClick={(e) => { e.stopPropagation(); openEdit(library) }} title={lib.editLibrary}>
                   <Pencil size={11} />
                 </button>
+                {onExportSkill && (
+                  <button className="lib-action-btn" onClick={(e) => { e.stopPropagation(); onExportSkill(library.id) }} title={lib.exportAsSkill}>
+                    <Download size={11} />
+                  </button>
+                )}
                 <button className="lib-action-btn danger" onClick={(e) => { e.stopPropagation(); handleDelete(library.id) }} title={lib.deleteLibrary}>
                   <Trash2 size={11} />
                 </button>

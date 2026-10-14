@@ -59,6 +59,10 @@ export interface Messages {
     tagDimScene: string;
     tagDimStyle: string;
     tagDimModel: string;
+    exportAsSkill: string;
+    exportSkillEmpty: string;
+    exportSkillSuccess: string;
+    exportSkillFail: string;
     deleteTag: string;
     cloudSection: string;
     localSection: string;
@@ -781,6 +785,10 @@ export const zh: Messages = {
     tagDimScene: "场景",
     tagDimStyle: "风格",
     tagDimModel: "适配模型",
+    exportAsSkill: "导出为 Agent Skill",
+    exportSkillEmpty: "该库暂无提示词，无需导出",
+    exportSkillSuccess: "已导出为 Agent Skill",
+    exportSkillFail: "导出失败",
     deleteTag: "删除标签",
     cloudSection: "云端资料库",
     localSection: "本地库",

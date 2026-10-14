@@ -21,7 +21,8 @@ import { AuthLoginPage } from "@/modules/auth";
 import type { AuthProvider, EmailLoginPayload, EmailRegisterPayload, AuthUser } from "@/modules/auth";
 import type { PromptMetadata, AgentSkillMetadata, LibraryItem, TagDefinition } from "@/lib/seekdb/types";
 import type { CloudLibraryFolder, InstallableAgentInfo } from "@/lib/seekdb/api";
-import { libraryAPI, tagAPI } from "@/lib/seekdb/api";
+import { libraryAPI, tagAPI, agentSkillAPI, promptAPI } from "@/lib/seekdb/api";
+import { buildLibrarySkillExport } from "@/lib/skillExport";
 import { useLocale } from "@/lib/i18n";
 import { showDesktopNotification } from "@/lib/desktopNotify";
 import {
@@ -223,6 +224,33 @@ export default function Home() {
       setTagList(data);
     } catch {
       // ignore
+    }
+  };
+
+  /** 导出库为 Agent Skill（DB→结构化 JSON+逐条 MD→SKILL.md 工作流，Agent 检索与人工浏览同源） */
+  const handleExportLibraryAsSkill = async (libraryId: string) => {
+    const lib = libraries.find((l) => l.id === libraryId);
+    if (!lib) return;
+    try {
+      const result = await promptAPI.getCurrent();
+      const prompts = (result.metadatas || []).filter((m: unknown): m is PromptMetadata => {
+        if (!m || typeof m !== "object" || !("promptId" in m)) return false;
+        return (m as PromptMetadata).libraryId === libraryId;
+      });
+      if (prompts.length === 0) {
+        alert(t.library.exportSkillEmpty);
+        return;
+      }
+      const exported = buildLibrarySkillExport({
+        libraryName: lib.name,
+        libraryDescription: lib.description,
+        prompts,
+      });
+      const dir = await agentSkillAPI.exportToFolder(exported);
+      if (!dir) return; // 用户取消
+      alert(`${t.library.exportSkillSuccess}\n${dir}`);
+    } catch (e) {
+      alert(`${t.library.exportSkillFail}: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 
