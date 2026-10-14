@@ -168,6 +168,7 @@ export function initDB(): void {
     { table: 'prompts', name: 'use_when', sql: "TEXT NOT NULL DEFAULT '[]'" },
     { table: 'prompts', name: 'guidance', sql: "TEXT NOT NULL DEFAULT '[]'" },
     { table: 'prompts', name: 'pitfalls', sql: "TEXT NOT NULL DEFAULT '[]'" },
+    { table: 'prompts', name: 'example_outputs', sql: "TEXT NOT NULL DEFAULT '[]'" },
   ]) {
     try {
       dbInstance.exec(`ALTER TABLE ${col.table} ADD COLUMN ${col.name} ${col.sql}`);

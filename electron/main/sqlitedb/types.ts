@@ -99,6 +99,14 @@ export interface GetResult {
 
 // ==================== Prompt 相关类型 ====================
 
+export interface PromptExampleOutput {
+  model: string; // 模型名，如 gpt-4o / claude-3-5-sonnet
+  provider?: string; // 来源 provider（openai/anthropic/deepseek/bailian_coding/...）
+  content: string; // 模型回复内容
+  testedAt: string; // ISO 时间
+  note?: string; // 备注（如人工评级、适用说明）
+}
+
 export interface PromptMetadata {
   title: string;
   content: string;
@@ -123,6 +131,7 @@ export interface PromptMetadata {
   useWhen?: string[]; // 适用场景：什么任务/输入适合用这个 Prompt
   guidance?: string[]; // 使用指导：关键指令、变量说明、调优建议
   pitfalls?: string[]; // 常见陷阱：已知局限、易错点、失败模式
+  exampleOutputs?: PromptExampleOutput[]; // 代表性模型输出案例（与模型对比测试联动）
 }
 
 export interface CreatePromptInput {
@@ -140,6 +149,7 @@ export interface CreatePromptInput {
   useWhen?: string[];
   guidance?: string[];
   pitfalls?: string[];
+  exampleOutputs?: PromptExampleOutput[];
 }
 
 export interface UpdatePromptInput {
@@ -155,6 +165,7 @@ export interface UpdatePromptInput {
   useWhen?: string[];
   guidance?: string[];
   pitfalls?: string[];
+  exampleOutputs?: PromptExampleOutput[];
 }
 
 export interface PromptVersion {

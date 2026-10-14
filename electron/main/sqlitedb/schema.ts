@@ -36,7 +36,9 @@ CREATE TABLE IF NOT EXISTS prompts (
   -- 结构化指导字段（prompt-as-code 模板规范：何时用/怎么用/避坑），JSON string[]
   use_when            TEXT NOT NULL DEFAULT '[]',
   guidance            TEXT NOT NULL DEFAULT '[]',
-  pitfalls            TEXT NOT NULL DEFAULT '[]'
+  pitfalls            TEXT NOT NULL DEFAULT '[]',
+  -- 代表性模型输出案例（与模型对比测试联动），JSON PromptExampleOutput[]
+  example_outputs     TEXT NOT NULL DEFAULT '[]'
 );
 CREATE INDEX IF NOT EXISTS idx_prompts_prompt_id     ON prompts(prompt_id);
 CREATE INDEX IF NOT EXISTS idx_prompts_current       ON prompts(prompt_id, is_current_version);

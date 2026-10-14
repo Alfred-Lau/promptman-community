@@ -14,6 +14,7 @@ import type {
   CreatePromptInput,
   UpdatePromptInput,
   PromptMetadata,
+  PromptExampleOutput,
   PromptVersion,
   CreateAgentSkillInput,
   UpdateAgentSkillInput,
@@ -559,6 +560,7 @@ function rowToPromptMetadata(row: Record<string, unknown>): PromptMetadata {
     useWhen: parseJson<string[]>(row.use_when, []),
     guidance: parseJson<string[]>(row.guidance, []),
     pitfalls: parseJson<string[]>(row.pitfalls, []),
+    exampleOutputs: parseJson<PromptExampleOutput[]>(row.example_outputs, []),
   };
 }
 
@@ -593,8 +595,8 @@ export async function createPrompt(input: CreatePromptInput): Promise<void> {
   const libraryId = input.libraryId ?? null;
   const tagIds = normalizeTagsForSave(input.tags);
   db.prepare(
-    `INSERT INTO prompts (id, prompt_id, title, content, description, category, tags, change_notes, version, is_current_version, created_at, updated_at, library_id, accent, use_when, guidance, pitfalls)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO prompts (id, prompt_id, title, content, description, category, tags, change_notes, version, is_current_version, created_at, updated_at, library_id, accent, use_when, guidance, pitfalls, example_outputs)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     input.id,
     promptId,
@@ -611,7 +613,8 @@ export async function createPrompt(input: CreatePromptInput): Promise<void> {
     input.accent || '#f59e0b',
     JSON.stringify(input.useWhen ?? []),
     JSON.stringify(input.guidance ?? []),
-    JSON.stringify(input.pitfalls ?? [])
+    JSON.stringify(input.pitfalls ?? []),
+    JSON.stringify(input.exampleOutputs ?? [])
   );
 
   const doc = makeDocument([
@@ -727,10 +730,11 @@ export async function updatePrompt(
     useWhen: JSON.stringify(input.useWhen !== undefined ? input.useWhen : (existing.useWhen ?? [])),
     guidance: JSON.stringify(input.guidance !== undefined ? input.guidance : (existing.guidance ?? [])),
     pitfalls: JSON.stringify(input.pitfalls !== undefined ? input.pitfalls : (existing.pitfalls ?? [])),
+    exampleOutputs: JSON.stringify(input.exampleOutputs !== undefined ? input.exampleOutputs : (existing.exampleOutputs ?? [])),
   };
 
   db.prepare(
-    `UPDATE prompts SET title=?, content=?, description=?, category=?, tags=?, is_current_version=?, updated_at=?, library_id=?, is_starred=?, accent=?, is_public=?, use_when=?, guidance=?, pitfalls=? WHERE id=?`
+    `UPDATE prompts SET title=?, content=?, description=?, category=?, tags=?, is_current_version=?, updated_at=?, library_id=?, is_starred=?, accent=?, is_public=?, use_when=?, guidance=?, pitfalls=?, example_outputs=? WHERE id=?`
   ).run(
     updated.title,
     updated.content,
@@ -746,6 +750,7 @@ export async function updatePrompt(
     updated.useWhen,
     updated.guidance,
     updated.pitfalls,
+    updated.exampleOutputs,
     id
   );
 
