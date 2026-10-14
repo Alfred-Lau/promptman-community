@@ -1,6 +1,6 @@
 {
   "name": "promptman",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Local-first desktop app for AI prompts, agent skills, and teams",
   "main": "dist-electron/main/index.js",
   "author": "OFX Labs",
