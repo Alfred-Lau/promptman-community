@@ -556,6 +556,9 @@ function rowToPromptMetadata(row: Record<string, unknown>): PromptMetadata {
     lastUsedAt: (row.last_used_at as string) || undefined,
     accent: (row.accent as string) || '#f59e0b',
     isPublic: toBool(row.is_public),
+    useWhen: parseJson<string[]>(row.use_when, []),
+    guidance: parseJson<string[]>(row.guidance, []),
+    pitfalls: parseJson<string[]>(row.pitfalls, []),
   };
 }
 
@@ -590,8 +593,8 @@ export async function createPrompt(input: CreatePromptInput): Promise<void> {
   const libraryId = input.libraryId ?? null;
   const tagIds = normalizeTagsForSave(input.tags);
   db.prepare(
-    `INSERT INTO prompts (id, prompt_id, title, content, description, category, tags, change_notes, version, is_current_version, created_at, updated_at, library_id, accent)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`
+    `INSERT INTO prompts (id, prompt_id, title, content, description, category, tags, change_notes, version, is_current_version, created_at, updated_at, library_id, accent, use_when, guidance, pitfalls)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     input.id,
     promptId,
@@ -605,7 +608,10 @@ export async function createPrompt(input: CreatePromptInput): Promise<void> {
     now,
     now,
     libraryId,
-    input.accent || '#f59e0b'
+    input.accent || '#f59e0b',
+    JSON.stringify(input.useWhen ?? []),
+    JSON.stringify(input.guidance ?? []),
+    JSON.stringify(input.pitfalls ?? [])
   );
 
   const doc = makeDocument([
@@ -614,6 +620,8 @@ export async function createPrompt(input: CreatePromptInput): Promise<void> {
     input.description,
     input.category,
     ...resolveTagIdsToNames(tagIds),
+    ...(input.useWhen ?? []),
+    ...(input.guidance ?? []),
   ]);
   saveEmbedding(input.id, "prompts", doc);
 
@@ -675,6 +683,9 @@ export async function getPromptVersions(promptId: string): Promise<PromptVersion
     updatedAt: r.updated_at as string,
     isCurrentVersion: toBool(r.is_current_version),
     changeNotes: r.change_notes as string,
+    useWhen: parseJson<string[]>(r.use_when, []),
+    guidance: parseJson<string[]>(r.guidance, []),
+    pitfalls: parseJson<string[]>(r.pitfalls, []),
   }));
 }
 
@@ -713,10 +724,13 @@ export async function updatePrompt(
     isStarred: input.isStarred !== undefined ? (input.isStarred ? 1 : 0) : (existing.isStarred ? 1 : 0),
     accent: input.accent ?? existing.accent ?? '#f59e0b',
     isPublic: input.isPublic !== undefined ? (input.isPublic ? 1 : 0) : (existing.isPublic ? 1 : 0),
+    useWhen: JSON.stringify(input.useWhen !== undefined ? input.useWhen : (existing.useWhen ?? [])),
+    guidance: JSON.stringify(input.guidance !== undefined ? input.guidance : (existing.guidance ?? [])),
+    pitfalls: JSON.stringify(input.pitfalls !== undefined ? input.pitfalls : (existing.pitfalls ?? [])),
   };
 
   db.prepare(
-    `UPDATE prompts SET title=?, content=?, description=?, category=?, tags=?, is_current_version=?, updated_at=?, library_id=?, is_starred=?, accent=?, is_public=? WHERE id=?`
+    `UPDATE prompts SET title=?, content=?, description=?, category=?, tags=?, is_current_version=?, updated_at=?, library_id=?, is_starred=?, accent=?, is_public=?, use_when=?, guidance=?, pitfalls=? WHERE id=?`
   ).run(
     updated.title,
     updated.content,
@@ -729,6 +743,9 @@ export async function updatePrompt(
     updated.isStarred,
     updated.accent,
     updated.isPublic,
+    updated.useWhen,
+    updated.guidance,
+    updated.pitfalls,
     id
   );
 
@@ -738,6 +755,8 @@ export async function updatePrompt(
     updated.description,
     updated.category,
     ...resolveTagIdsToNames(nextTagIds),
+    ...(input.useWhen ?? existing.useWhen ?? []),
+    ...(input.guidance ?? existing.guidance ?? []),
   ]);
   saveEmbedding(id, "prompts", doc);
 

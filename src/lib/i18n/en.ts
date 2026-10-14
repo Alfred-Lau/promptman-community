@@ -602,6 +602,13 @@ export const en: Messages = {
     errorSave: "Save failed",
     errorPolishEmpty: "Please enter prompt content before polishing",
     errorPolishFailed: "AI polish failed",
+    labelGuidanceSection: "Advanced Guidance (optional)",
+    labelUseWhen: "When to Use",
+    labelGuidance: "Usage Guidance",
+    labelPitfalls: "Common Pitfalls",
+    placeholderUseWhen: "One per line: which tasks or inputs this prompt fits",
+    placeholderGuidance: "One per line: key instructions, variable notes, or tuning tips",
+    placeholderPitfalls: "One per line: known limits, gotchas, or common failure modes",
   },
 
   generate: {

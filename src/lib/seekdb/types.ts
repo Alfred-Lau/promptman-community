@@ -132,6 +132,12 @@ export interface PromptMetadata {
   lastUsedAt?: string;
   accent?: string;
   isPublic?: boolean;
+  /** 适用场景：什么任务/输入适合用这个 Prompt（prompt-as-code 规范） */
+  useWhen?: string[];
+  /** 使用指导：关键指令、变量说明、调优建议 */
+  guidance?: string[];
+  /** 常见陷阱：已知局限、易错点、失败模式 */
+  pitfalls?: string[];
 }
 
 export interface CreatePromptInput {
@@ -147,6 +153,9 @@ export interface CreatePromptInput {
   createdAt?: string;
   changeNotes?: string; // 版本变更说明
   accent?: string;
+  useWhen?: string[];
+  guidance?: string[];
+  pitfalls?: string[];
 }
 
 export interface UpdatePromptInput {
@@ -160,6 +169,9 @@ export interface UpdatePromptInput {
   isStarred?: boolean;
   accent?: string;
   isPublic?: boolean;
+  useWhen?: string[];
+  guidance?: string[];
+  pitfalls?: string[];
 }
 
 export interface PromptVersion {
@@ -172,6 +184,9 @@ export interface PromptVersion {
   updatedAt: string;
   isCurrentVersion: boolean;
   changeNotes?: string; // 版本变更说明
+  useWhen?: string[];
+  guidance?: string[];
+  pitfalls?: string[];
 }
 
 // ==================== Agent Skills 相关类型 ====================

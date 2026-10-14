@@ -541,6 +541,13 @@ export interface Messages {
     errorSave: string;
     errorPolishEmpty: string;
     errorPolishFailed: string;
+    labelGuidanceSection: string;
+    labelUseWhen: string;
+    labelGuidance: string;
+    labelPitfalls: string;
+    placeholderUseWhen: string;
+    placeholderGuidance: string;
+    placeholderPitfalls: string;
   };
   generate: {
     badge: string;
@@ -1312,6 +1319,13 @@ export const zh: Messages = {
     errorSave: "保存失败",
     errorPolishEmpty: "请先输入 Prompt 内容再润色",
     errorPolishFailed: "AI 润色失败",
+    labelGuidanceSection: "进阶指导（可选）",
+    labelUseWhen: "适用场景",
+    labelGuidance: "使用指导",
+    labelPitfalls: "常见陷阱",
+    placeholderUseWhen: "每行一条：什么任务或输入适合用这个 Prompt",
+    placeholderGuidance: "每行一条：使用时的关键指令、变量说明或调优建议",
+    placeholderPitfalls: "每行一条：已知局限、易错点或模型常见失败模式",
   },
 
   generate: {

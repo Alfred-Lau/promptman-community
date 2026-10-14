@@ -32,7 +32,11 @@ CREATE TABLE IF NOT EXISTS prompts (
   uses                INTEGER NOT NULL DEFAULT 0,
   last_used_at        TEXT,
   accent              TEXT NOT NULL DEFAULT '#f59e0b',
-  is_public           INTEGER NOT NULL DEFAULT 0
+  is_public           INTEGER NOT NULL DEFAULT 0,
+  -- 结构化指导字段（prompt-as-code 模板规范：何时用/怎么用/避坑），JSON string[]
+  use_when            TEXT NOT NULL DEFAULT '[]',
+  guidance            TEXT NOT NULL DEFAULT '[]',
+  pitfalls            TEXT NOT NULL DEFAULT '[]'
 );
 CREATE INDEX IF NOT EXISTS idx_prompts_prompt_id     ON prompts(prompt_id);
 CREATE INDEX IF NOT EXISTS idx_prompts_current       ON prompts(prompt_id, is_current_version);

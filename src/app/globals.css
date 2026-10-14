@@ -464,3 +464,31 @@ a {
   overflow: hidden;
   line-height: 1.35;
 }
+
+/* ===================================
+   Prompt form — 结构化指导折叠区（适用场景/使用指导/常见陷阱）
+   =================================== */
+.prompt-guidance > summary {
+  cursor: pointer;
+  font-weight: 500;
+  user-select: none;
+  margin-bottom: 4px;
+}
+
+.prompt-guidance[open] > summary {
+  margin-bottom: 12px;
+}
+
+.prompt-guidance .guidance-field {
+  margin-bottom: 12px;
+}
+
+.prompt-guidance .guidance-field label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.prompt-guidance .guidance-field textarea {
+  width: 100%;
+  resize: vertical;
+}

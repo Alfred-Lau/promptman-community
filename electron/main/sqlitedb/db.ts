@@ -164,6 +164,10 @@ export function initDB(): void {
     { table: 'agent_skills', name: 'source_ref', sql: "TEXT NOT NULL DEFAULT ''" },
     { table: 'agent_skills', name: 'source_skill', sql: "TEXT NOT NULL DEFAULT ''" },
     { table: 'agent_skills', name: 'source_commit', sql: "TEXT NOT NULL DEFAULT ''" },
+    // v5 migration: Prompt 结构化指导字段（prompt-as-code 模板规范：何时用/怎么用/避坑）
+    { table: 'prompts', name: 'use_when', sql: "TEXT NOT NULL DEFAULT '[]'" },
+    { table: 'prompts', name: 'guidance', sql: "TEXT NOT NULL DEFAULT '[]'" },
+    { table: 'prompts', name: 'pitfalls', sql: "TEXT NOT NULL DEFAULT '[]'" },
   ]) {
     try {
       dbInstance.exec(`ALTER TABLE ${col.table} ADD COLUMN ${col.name} ${col.sql}`);

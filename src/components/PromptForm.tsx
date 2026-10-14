@@ -13,6 +13,13 @@ import { isMissingApiKeyError } from '@/lib/aiErrors'
 import { BUILTIN_CATEGORIES, normalizeCategory } from '@/lib/promptPolicy'
 import { defaultAccentForCategory } from '@/lib/intent-prompt-heuristics'
 
+/** 多行文本 → string[]（每行一条，去空行）；空文本返回 [] 表示清空 */
+const splitGuidanceLines = (text: string): string[] =>
+  text
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean)
+
 interface PromptFormProps {
   promptId?: string
   promptVersionId?: string // 如果提供，则创建新版本
@@ -53,6 +60,9 @@ export default function PromptForm({
     libraryId: '',
     changeNotes: '',
     category: 'other',
+    useWhen: '',
+    guidance: '',
+    pitfalls: '',
   })
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [allTags, setAllTags] = useState<TagDefinition[]>([])
@@ -105,6 +115,9 @@ export default function PromptForm({
           libraryId: prompt.libraryId ?? '',
           changeNotes: '',
           category: prompt.category || 'other',
+          useWhen: (prompt.useWhen ?? []).join('\n'),
+          guidance: (prompt.guidance ?? []).join('\n'),
+          pitfalls: (prompt.pitfalls ?? []).join('\n'),
         })
         setSelectedTagIds(Array.isArray(prompt.tagIds) ? prompt.tagIds : [])
       }
@@ -129,6 +142,9 @@ export default function PromptForm({
           libraryId: prompt.libraryId ?? '',
           changeNotes: '',
           category: prompt.category || 'other',
+          useWhen: (prompt.useWhen ?? []).join('\n'),
+          guidance: (prompt.guidance ?? []).join('\n'),
+          pitfalls: (prompt.pitfalls ?? []).join('\n'),
         })
         setSelectedTagIds(Array.isArray(prompt.tagIds) ? prompt.tagIds : [])
       }
@@ -244,6 +260,9 @@ export default function PromptForm({
           tags,
           category,
           accent,
+          useWhen: splitGuidanceLines(formData.useWhen),
+          guidance: splitGuidanceLines(formData.guidance),
+          pitfalls: splitGuidanceLines(formData.pitfalls),
         })
         // 推送到云端（若已登录 PromptHub）
         await syncToHub({
@@ -268,6 +287,9 @@ export default function PromptForm({
           changeNotes: formData.changeNotes || undefined,
           category,
           accent,
+          useWhen: splitGuidanceLines(formData.useWhen),
+          guidance: splitGuidanceLines(formData.guidance),
+          pitfalls: splitGuidanceLines(formData.pitfalls),
         }
         await promptAPI.create(input)
         // 推送到云端（若已登录 PromptHub）
@@ -290,6 +312,9 @@ export default function PromptForm({
           tags,
           category,
           accent,
+          useWhen: splitGuidanceLines(formData.useWhen),
+          guidance: splitGuidanceLines(formData.guidance),
+          pitfalls: splitGuidanceLines(formData.pitfalls),
         }
         await promptAPI.create(input)
         // 推送到云端（若已登录 PromptHub）
@@ -362,6 +387,43 @@ export default function PromptForm({
             />
           </div>
         </div>
+
+        <details className="form-group prompt-guidance">
+          <summary>{pf.labelGuidanceSection}</summary>
+          <div className="guidance-field">
+            <label htmlFor="useWhen">{pf.labelUseWhen}</label>
+            <textarea
+              id="useWhen"
+              rows={3}
+              value={formData.useWhen}
+              onChange={(e) => setFormData({ ...formData, useWhen: e.target.value })}
+              placeholder={pf.placeholderUseWhen}
+              disabled={loading}
+            />
+          </div>
+          <div className="guidance-field">
+            <label htmlFor="guidance">{pf.labelGuidance}</label>
+            <textarea
+              id="guidance"
+              rows={3}
+              value={formData.guidance}
+              onChange={(e) => setFormData({ ...formData, guidance: e.target.value })}
+              placeholder={pf.placeholderGuidance}
+              disabled={loading}
+            />
+          </div>
+          <div className="guidance-field">
+            <label htmlFor="pitfalls">{pf.labelPitfalls}</label>
+            <textarea
+              id="pitfalls"
+              rows={3}
+              value={formData.pitfalls}
+              onChange={(e) => setFormData({ ...formData, pitfalls: e.target.value })}
+              placeholder={pf.placeholderPitfalls}
+              disabled={loading}
+            />
+          </div>
+        </details>
 
         <div className="form-row">
           <div className="form-group">
