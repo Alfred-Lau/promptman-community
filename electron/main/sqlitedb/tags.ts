@@ -17,14 +17,23 @@ function parseJson<T>(val: unknown, fallback: T): T {
   }
 }
 
+/** 合法标签维度：'' 通用 / scene 场景 / style 风格 / model 适配模型 */
+export const TAG_DIMENSIONS = ["", "scene", "style", "model"];
+
+export function normalizeDimension(v: unknown): string {
+  return typeof v === "string" && TAG_DIMENSIONS.includes(v) ? v : "";
+}
+
 export interface TagDefinitionRow {
   id: string;
   name: string;
   color: string;
+  /** 所属维度，'' 为通用标签 */
+  dimension: string;
   createdAt: string;
 }
 
-export function getOrCreateTagByName(name: string): string {
+export function getOrCreateTagByName(name: string, dimension = ""): string {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("标签名称不能为空");
   const db = getDB();
@@ -35,8 +44,8 @@ export function getOrCreateTagByName(name: string): string {
   const id = genId("tag_def");
   const now = new Date().toISOString();
   db.prepare(
-    "INSERT INTO tag_definitions (id, name, color, created_at) VALUES (?, ?, '', ?)"
-  ).run(id, trimmed, now);
+    "INSERT INTO tag_definitions (id, name, dimension, color, created_at) VALUES (?, ?, ?, '', ?)"
+  ).run(id, trimmed, normalizeDimension(dimension), now);
   return id;
 }
 
@@ -83,35 +92,37 @@ export function resolveTagIdsToNames(ids: string[]): string[] {
 
 export function getAllTagDefinitions(): TagDefinitionRow[] {
   const rows = getDB()
-    .prepare("SELECT id, name, color, created_at FROM tag_definitions ORDER BY name COLLATE NOCASE")
-    .all() as Array<{ id: string; name: string; color: string; created_at: string }>;
+    .prepare("SELECT id, name, color, dimension, created_at FROM tag_definitions ORDER BY name COLLATE NOCASE")
+    .all() as Array<{ id: string; name: string; color: string; dimension: string | null; created_at: string }>;
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     color: r.color || "",
+    dimension: r.dimension ?? "",
     createdAt: r.created_at,
   }));
 }
 
-export function createTagDefinition(name: string, color?: string): TagDefinitionRow {
-  const id = getOrCreateTagByName(name);
+export function createTagDefinition(name: string, color?: string, dimension?: string): TagDefinitionRow {
+  const id = getOrCreateTagByName(name, dimension ?? "");
   if (color !== undefined && color !== "") {
     getDB().prepare("UPDATE tag_definitions SET color = ? WHERE id = ?").run(color, id);
   }
   const row = getDB()
-    .prepare("SELECT id, name, color, created_at FROM tag_definitions WHERE id = ?")
-    .get(id) as { id: string; name: string; color: string; created_at: string };
+    .prepare("SELECT id, name, color, dimension, created_at FROM tag_definitions WHERE id = ?")
+    .get(id) as { id: string; name: string; color: string; dimension: string | null; created_at: string };
   return {
     id: row.id,
     name: row.name,
     color: row.color || "",
+    dimension: row.dimension ?? "",
     createdAt: row.created_at,
   };
 }
 
 export function updateTagDefinition(
   id: string,
-  input: { name?: string; color?: string }
+  input: { name?: string; color?: string; dimension?: string }
 ): void {
   const db = getDB();
   const cur = db.prepare("SELECT id FROM tag_definitions WHERE id = ?").get(id) as { id: string } | undefined;
@@ -123,6 +134,9 @@ export function updateTagDefinition(
   }
   if (input.color !== undefined) {
     db.prepare("UPDATE tag_definitions SET color = ? WHERE id = ?").run(input.color, id);
+  }
+  if (input.dimension !== undefined) {
+    db.prepare("UPDATE tag_definitions SET dimension = ? WHERE id = ?").run(normalizeDimension(input.dimension), id);
   }
 }
 

@@ -189,7 +189,8 @@ export default function Home() {
     }
   }, [selectedLibraryId, activeTab]);
   const [tagList, setTagList] = useState<TagDefinition[]>([]);
-  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
+  /** 多维正交标签筛选：跨维度可同时选中，AND 组合过滤 */
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   /** 顶层云端资料库（仅已登录 PromptHub 时非空），用于新建/编辑表单的归属库下拉 */
   const [cloudFolders, setCloudFolders] = useState<CloudLibraryFolder[]>([]);
 
@@ -915,16 +916,19 @@ export default function Home() {
                   }
                 }}
                 tags={tagList}
-                selectedTagId={selectedTagId}
-                onSelectTag={
+                selectedTagIds={selectedTagIds}
+                onToggleTag={
                   activeTab === "prompts" || activeTab === "skills"
                     ? (tagId) => {
-                        setSelectedTagId(tagId);
+                        setSelectedTagIds((prev) =>
+                          prev.includes(tagId) ? prev.filter((x) => x !== tagId) : [...prev, tagId],
+                        );
                         setSelectedPromptId(null);
                         setSelectedSkillId(null);
                       }
                     : undefined
                 }
+                onClearTagFilter={() => setSelectedTagIds([])}
                 onTagsChanged={loadTags}
                 currentUser={currentUser}
                 promptHubCloudLinked={promptHubCloudLinked}
@@ -1126,7 +1130,7 @@ export default function Home() {
                         onViewVersions={handleViewPromptVersions}
                         onDeletePrompt={handlePromptDeletedFromList}
                         libraryId={selectedLibraryId}
-                        tagId={selectedTagId}
+                        tagIds={selectedTagIds}
                         libraries={libraries}
                         onLibraryChanged={loadLibraries}
                         autoSelectFirst={viewMode === "prompts"}
@@ -1308,7 +1312,7 @@ export default function Home() {
                         onViewVersions={handleViewSkillVersions}
                         onDeleteSkill={handleSkillDeletedFromList}
                         libraryId={selectedLibraryId}
-                        tagId={selectedTagId}
+                        tagIds={selectedTagIds}
                         libraries={libraries}
                         onLibraryChanged={loadLibraries}
                         autoSelectFirst={viewMode === "skills"}

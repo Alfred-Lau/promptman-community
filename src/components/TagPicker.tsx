@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { tagAPI } from '@/lib/seekdb/api'
 import type { TagDefinition } from '@/lib/seekdb/types'
+import { TAG_DIMENSIONS } from '@/lib/seekdb/types'
 
 interface TagPickerProps {
   value: string[]
@@ -15,6 +16,10 @@ interface TagPickerProps {
     selectPlaceholder: string
     newTagPlaceholder: string
     addNew: string
+    /** 新建标签时维度下拉的 aria-label */
+    dimensionLabel: string
+    /** 维度显示名（key 为 TAG_DIMENSIONS 值） */
+    dimensionNames: Record<string, string>
   }
 }
 
@@ -27,6 +32,7 @@ export default function TagPicker({
   labels,
 }: TagPickerProps) {
   const [newName, setNewName] = useState('')
+  const [newDimension, setNewDimension] = useState<string>('')
   const [creating, setCreating] = useState(false)
 
   const idToTag = useMemo(() => {
@@ -54,7 +60,7 @@ export default function TagPicker({
     if (!name || creating) return
     setCreating(true)
     try {
-      const t = await tagAPI.create(name)
+      const t = await tagAPI.create(name, undefined, newDimension)
       onTagsUpdated?.()
       addById(t.id)
       setNewName('')
@@ -78,9 +84,30 @@ export default function TagPicker({
           }}
         >
           <option value="">{labels.selectPlaceholder}</option>
-          {availableOptions.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
+          {TAG_DIMENSIONS.map((dim) => {
+            const opts = availableOptions.filter((t) => (t.dimension ?? '') === dim)
+            if (opts.length === 0) return null
+            return (
+              <optgroup key={dim || 'general'} label={labels.dimensionNames[dim] ?? dim}>
+                {opts.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          })}
+        </select>
+        <select
+          className="tag-picker-dim-select"
+          value={newDimension}
+          disabled={disabled}
+          aria-label={labels.dimensionLabel}
+          onChange={(e) => setNewDimension(e.target.value)}
+        >
+          {TAG_DIMENSIONS.map((d) => (
+            <option key={d || 'general'} value={d}>
+              {labels.dimensionNames[d] ?? d}
             </option>
           ))}
         </select>
@@ -148,6 +175,15 @@ export default function TagPicker({
           border-radius: var(--radius-sm);
           color: var(--text-primary);
           font-size: 0.85rem;
+        }
+        .tag-picker-dim-select {
+          padding: 6px 4px;
+          border: 1px solid var(--border-color);
+          background: var(--bg-glass);
+          border-radius: var(--radius-sm);
+          color: var(--text-primary);
+          font-size: 0.85rem;
+          max-width: 96px;
         }
         .tag-picker-new-input {
           flex: 1;

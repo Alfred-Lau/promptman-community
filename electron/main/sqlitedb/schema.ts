@@ -169,6 +169,7 @@ CREATE INDEX IF NOT EXISTS idx_components_site_id ON components(site_id);
 CREATE TABLE IF NOT EXISTS tag_definitions (
   id         TEXT PRIMARY KEY,
   name       TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  dimension  TEXT NOT NULL DEFAULT '',
   color      TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL
 );

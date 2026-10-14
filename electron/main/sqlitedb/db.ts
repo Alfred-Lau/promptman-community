@@ -169,6 +169,8 @@ export function initDB(): void {
     { table: 'prompts', name: 'guidance', sql: "TEXT NOT NULL DEFAULT '[]'" },
     { table: 'prompts', name: 'pitfalls', sql: "TEXT NOT NULL DEFAULT '[]'" },
     { table: 'prompts', name: 'example_outputs', sql: "TEXT NOT NULL DEFAULT '[]'" },
+    // v6 migration: 标签维度（正交多维：'' 通用 / scene 场景 / style 风格 / model 适配模型）
+    { table: 'tag_definitions', name: 'dimension', sql: "TEXT NOT NULL DEFAULT ''" },
   ]) {
     try {
       dbInstance.exec(`ALTER TABLE ${col.table} ADD COLUMN ${col.name} ${col.sql}`);

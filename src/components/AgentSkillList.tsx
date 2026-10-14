@@ -23,8 +23,8 @@ interface AgentSkillListProps {
   listTitle?: string
   /** 按库过滤，null 表示全部 */
   libraryId?: string | null
-  /** 按标签过滤 */
-  tagId?: string | null
+  /** 多维正交标签筛选（tag_definitions id 列表），AND 语义；空数组表示不筛 */
+  tagIds?: string[]
   /** 库列表，用于移动到库菜单 */
   libraries?: LibraryItem[]
   /** 移动到库后刷新 */
@@ -55,7 +55,7 @@ export default function AgentSkillList({
   embeddedInMain = false,
   listTitle,
   libraryId,
-  tagId,
+  tagIds,
   libraries = [],
   onLibraryChanged,
   autoSelectFirst = false,
@@ -107,7 +107,7 @@ export default function AgentSkillList({
 
   useEffect(() => {
     loadSkills()
-  }, [variant, libraryId, tagId])
+  }, [variant, libraryId, tagIds])
 
   useEffect(() => {
     if (!cloudFolderId) { setCloudFolderSkills([]); return }
@@ -275,12 +275,12 @@ export default function AgentSkillList({
       out = out.filter((r) => r.metadata.libraryId === libraryId)
     }
 
-    if (tagId !== undefined && tagId !== null) {
-      out = out.filter((r) => r.metadata.tagIds?.includes(tagId))
+    if (tagIds && tagIds.length > 0) {
+      out = out.filter((r) => tagIds.every(id => r.metadata.tagIds?.includes(id)))
     }
 
     return out
-  }, [skills, searchResults, libraryId, tagId, isCloudFolder])
+  }, [skills, searchResults, libraryId, tagIds, isCloudFolder])
 
   const { userRows: userSkillRows, externalRows: externalSkillRows } = useMemo(
     () =>

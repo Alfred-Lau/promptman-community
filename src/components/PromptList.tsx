@@ -22,8 +22,8 @@ interface PromptListProps {
   listTitle?: string
   /** 按库过滤，null 表示全部 */
   libraryId?: string | null
-  /** 按标签过滤（tag_definitions id），null 表示不按标签筛 */
-  tagId?: string | null
+  /** 多维正交标签筛选（tag_definitions id 列表），AND 语义；空数组表示不筛 */
+  tagIds?: string[]
   /** 库列表，用于移动到库菜单 */
   libraries?: LibraryItem[]
   /** 移动到库后刷新库计数 */
@@ -55,7 +55,7 @@ export default function PromptList({
   embeddedInMain = false,
   listTitle,
   libraryId,
-  tagId,
+  tagIds,
   libraries = [],
   onLibraryChanged,
   autoSelectFirst = false,
@@ -109,7 +109,7 @@ export default function PromptList({
 
   useEffect(() => {
     loadPrompts()
-  }, [variant, libraryId, tagId])
+  }, [variant, libraryId, tagIds])
 
   const isCloudFolder = typeof libraryId === 'string' && libraryId.startsWith('cloud:')
   const cloudFolderId = isCloudFolder ? libraryId.slice(6) : null
@@ -301,12 +301,12 @@ export default function PromptList({
       result = result.filter(r => r.metadata.libraryId === libraryId)
     }
 
-    if (tagId !== undefined && tagId !== null) {
-      result = result.filter(r => r.metadata.tagIds?.includes(tagId))
+    if (tagIds && tagIds.length > 0) {
+      result = result.filter(r => tagIds.every(id => r.metadata.tagIds?.includes(id)))
     }
 
     return result
-  }, [prompts, searchResults, libraryId, tagId, isCloudFolder])
+  }, [prompts, searchResults, libraryId, tagIds, isCloudFolder])
 
   const { userRows: userPromptRows, externalRows: externalPromptRows } = useMemo(
     () =>

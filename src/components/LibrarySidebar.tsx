@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Check, X, FolderOpen, Folder, Tag, Cloud } from '
 import { libraryAPI, tagAPI } from '@/lib/seekdb/api'
 import type { CloudLibraryFolder } from '@/lib/seekdb/api'
 import type { LibraryItem, TagDefinition } from '@/lib/seekdb/types'
+import { TAG_DIMENSIONS } from '@/lib/seekdb/types'
 import { useLocale } from '@/lib/i18n'
 import { LOCAL_FIRST } from '@/lib/localFirst'
 
@@ -20,8 +21,12 @@ interface LibrarySidebarProps {
   onSelectLibrary: (libraryId: string | null) => void
   /** 标签筛选（与库筛选同时生效时为 AND） */
   tags?: TagDefinition[]
-  selectedTagId?: string | null
-  onSelectTag?: (tagId: string | null) => void
+  /** 多维正交标签筛选：选中的 tag id 列表，AND 语义 */
+  selectedTagIds?: string[]
+  /** 点击标签切换选中态 */
+  onToggleTag?: (tagId: string) => void
+  /** 清空标签筛选（「全部标签」项） */
+  onClearTagFilter?: () => void
   onTagsChanged?: () => void
   currentUser?: { id?: string | number; name?: string | null } | null
   /** PromptHub 云端是否已关联（token 有效） */
@@ -39,8 +44,9 @@ export default function LibrarySidebar({
   selectedLibraryId,
   onSelectLibrary,
   tags = [],
-  selectedTagId = null,
-  onSelectTag,
+  selectedTagIds = [],
+  onToggleTag,
+  onClearTagFilter,
   onTagsChanged,
   currentUser,
   promptHubCloudLinked,
@@ -151,15 +157,22 @@ export default function LibrarySidebar({
   }
 
   const isActive = (id: string | null) => selectedLibraryId === id
-  const isTagActive = (id: string | null) => selectedTagId === id
-  const showTagFilter = typeof onSelectTag === 'function'
+  const isTagActive = (id: string) => selectedTagIds.includes(id)
+  const showTagFilter = typeof onToggleTag === 'function'
+  /** 维度分组显示名（'' 通用组不显示组名） */
+  const dimNames: Record<string, string> = {
+    '': lib.tagDimGeneral,
+    scene: lib.tagDimScene,
+    style: lib.tagDimStyle,
+    model: lib.tagDimModel,
+  }
 
   const handleDeleteTag = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
     if (!confirm(lib.deleteTagConfirm)) return
     try {
       await tagAPI.delete(id)
-      if (selectedTagId === id) onSelectTag?.(null)
+      if (selectedTagIds.includes(id)) onToggleTag?.(id) // 从筛选中移除被删标签
       onTagsChanged?.()
     } catch {
       // silently fail
@@ -261,35 +274,44 @@ export default function LibrarySidebar({
         <>
           <div className="lib-section-label">{lib.tagsSection}</div>
           <div
-            className={`lib-item lib-all ${isTagActive(null) ? 'active' : ''}`}
-            onClick={() => onSelectTag!(null)}
+            className={`lib-item lib-all ${selectedTagIds.length === 0 ? 'active' : ''}`}
+            onClick={() => onClearTagFilter?.()}
           >
             <span className="lib-icon">
               <Tag size={14} />
             </span>
             <span className="lib-name">{lib.allTags}</span>
           </div>
-          {tags.map((tag) => (
-            <div key={tag.id} className={`lib-item ${isTagActive(tag.id) ? 'active' : ''}`}>
-              <div className="lib-item-main" onClick={() => onSelectTag!(tag.id)}>
-                <span
-                  className="lib-tag-dot"
-                  style={{ background: tag.color || 'var(--accent-color)' }}
-                />
-                <span className="lib-name">{tag.name}</span>
+          {TAG_DIMENSIONS.map((dim) => {
+            const groupTags = tags.filter((t) => (t.dimension ?? '') === dim)
+            if (groupTags.length === 0) return null
+            return (
+              <div key={dim || 'general'}>
+                {dim && <div className="lib-section-label">{dimNames[dim]}</div>}
+                {groupTags.map((tag) => (
+                  <div key={tag.id} className={`lib-item ${isTagActive(tag.id) ? 'active' : ''}`}>
+                    <div className="lib-item-main" onClick={() => onToggleTag!(tag.id)}>
+                      <span
+                        className="lib-tag-dot"
+                        style={{ background: tag.color || 'var(--accent-color)' }}
+                      />
+                      <span className="lib-name">{tag.name}</span>
+                    </div>
+                    <div className="lib-item-actions">
+                      <button
+                        className="lib-action-btn danger"
+                        type="button"
+                        onClick={(e) => handleDeleteTag(tag.id, e)}
+                        title={lib.deleteTag}
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="lib-item-actions">
-                <button
-                  className="lib-action-btn danger"
-                  type="button"
-                  onClick={(e) => handleDeleteTag(tag.id, e)}
-                  title={lib.deleteTag}
-                >
-                  <Trash2 size={11} />
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </>
       )}
 

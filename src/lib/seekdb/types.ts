@@ -102,11 +102,17 @@ export interface GetResult {
 
 // ==================== Prompt 相关类型 ====================
 
+/** 标签维度（正交多维）：'' 通用 / scene 场景 / style 风格 / model 适配模型 */
+export const TAG_DIMENSIONS = ["", "scene", "style", "model"] as const;
+export type TagDimension = (typeof TAG_DIMENSIONS)[number];
+
 /** 独立表 tag_definitions，prompts.tags JSON 存 id 列表 */
 export interface TagDefinition {
   id: string;
   name: string;
   color: string;
+  /** 所属维度，'' 为通用标签 */
+  dimension?: string;
   createdAt: string;
 }
 

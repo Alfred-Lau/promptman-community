@@ -1582,14 +1582,14 @@ export const tagAPI = {
     return result.data || [];
   },
 
-  async create(name: string, color?: string): Promise<TagDefinition> {
+  async create(name: string, color?: string, dimension?: string): Promise<TagDefinition> {
     checkElectron();
-    const result = (await getElectronAPI().invoke("seekdb:tag:create", name, color)) as ApiResponse<TagDefinition>;
+    const result = (await getElectronAPI().invoke("seekdb:tag:create", name, color, dimension)) as ApiResponse<TagDefinition>;
     if (!result.success) throw new Error(result.error || "创建标签失败");
     return result.data!;
   },
 
-  async update(id: string, input: { name?: string; color?: string }): Promise<void> {
+  async update(id: string, input: { name?: string; color?: string; dimension?: string }): Promise<void> {
     checkElectron();
     const result = (await getElectronAPI().invoke("seekdb:tag:update", id, input)) as ApiResponse;
     if (!result.success) throw new Error(result.error || "更新标签失败");

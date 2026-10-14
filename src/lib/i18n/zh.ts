@@ -54,6 +54,11 @@ export interface Messages {
     tagSelectPlaceholder: string;
     tagNewPlaceholder: string;
     tagAddNew: string;
+    tagDimension: string;
+    tagDimGeneral: string;
+    tagDimScene: string;
+    tagDimStyle: string;
+    tagDimModel: string;
     deleteTag: string;
     cloudSection: string;
     localSection: string;
@@ -771,6 +776,11 @@ export const zh: Messages = {
     tagSelectPlaceholder: "选择已有标签…",
     tagNewPlaceholder: "新标签名称",
     tagAddNew: "新建",
+    tagDimension: "标签维度",
+    tagDimGeneral: "通用",
+    tagDimScene: "场景",
+    tagDimStyle: "风格",
+    tagDimModel: "适配模型",
     deleteTag: "删除标签",
     cloudSection: "云端资料库",
     localSection: "本地库",

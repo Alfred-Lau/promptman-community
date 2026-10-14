@@ -502,6 +502,13 @@ export default function PromptForm({
                 selectPlaceholder: lib.tagSelectPlaceholder,
                 newTagPlaceholder: lib.tagNewPlaceholder,
                 addNew: lib.tagAddNew,
+                dimensionLabel: lib.tagDimension,
+                dimensionNames: {
+                  '': lib.tagDimGeneral,
+                  scene: lib.tagDimScene,
+                  style: lib.tagDimStyle,
+                  model: lib.tagDimModel,
+                },
               }}
             />
           </div>

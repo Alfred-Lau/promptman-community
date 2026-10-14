@@ -3325,16 +3325,16 @@ Generate all content in English.`;
     }
   });
 
-  ipcMain.handle("seekdb:tag:create", async (_event, name: string, color?: string) => {
+  ipcMain.handle("seekdb:tag:create", async (_event, name: string, color?: string, dimension?: string) => {
     try {
-      const data = createTagDefinition(name, color);
+      const data = createTagDefinition(name, color, dimension);
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "创建标签失败" };
     }
   });
 
-  ipcMain.handle("seekdb:tag:update", async (_event, id: string, input: { name?: string; color?: string }) => {
+  ipcMain.handle("seekdb:tag:update", async (_event, id: string, input: { name?: string; color?: string; dimension?: string }) => {
     try {
       updateTagDefinition(id, input);
       return { success: true };
