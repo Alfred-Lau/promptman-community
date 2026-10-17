@@ -30,7 +30,7 @@
   <a href="https://github.com/Alfred-Lau/promptman-community/releases">
     <img src="https://img.shields.io/github/downloads/Alfred-Lau/promptman-community/total?style=flat-square&label=Downloads&color=6366f1" alt="Total Downloads" />
   </a>
-  <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple%20Developer%20ID-2ea043?style=flat-square" alt="Signed & Notarized" />
+  <img src="https://img.shields.io/badge/Signed-Apple%20Developer%20ID-2ea043?style=flat-square" alt="Signed with Apple Developer ID" />
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
   </a>
@@ -43,7 +43,7 @@
 </p>
 
 <p align="center">
-  🛡️ <strong>The current open-source release (v0.1.0) is signed & notarized</strong> — macOS installers are Apple Developer ID-signed and Apple-notarized, so Gatekeeper opens them directly. No workarounds needed.
+  🛡️ <strong>All releases are built from this repository and published on GitHub Releases</strong> — macOS installers are Developer ID-signed.
 </p>
 
 <p align="center">
@@ -85,15 +85,15 @@ Once your prompts pile up, the real problem is not storage — it's **finding an
 
 Or download from [GitHub Releases](https://github.com/Alfred-Lau/promptman-community/releases/latest):
 
-> ⚡ **The current open-source release (v0.1.0) is a signed & notarized build**: macOS artifacts are Developer ID-signed and Apple-notarized (`spctl` evaluates them as Notarized Developer ID), and Gatekeeper opens them directly — no override steps required.
+> ⚡ **macOS artifacts are Developer ID-signed**: installers carry an Apple Developer ID signature. On first launch, right-click the app and choose **Open** (or allow it under System Settings → Privacy & Security) if Gatekeeper asks for confirmation.
 
 | Platform | Format | Status |
 |----------|--------|--------|
-| macOS (Apple Silicon / arm64) | `.dmg` (manual install) / `.zip` (auto-update) | ✅ Available · signed & notarized |
+| macOS (Apple Silicon / arm64) | `.dmg` (manual install) / `.zip` (auto-update) | ✅ Available · Developer ID-signed |
 | Windows (x64) | `.exe` (NSIS installer) | ✅ Available · unsigned (SmartScreen will warn — see below) |
 | Linux | `.AppImage` / `.deb` | 🚧 Coming Soon |
 
-> **macOS**: since v0.1.0 all official artifacts are Developer ID-signed and Apple-notarized, so Gatekeeper opens them directly — **no** right-click → Open or System Settings → Privacy & Security overrides needed.
+> **macOS**: artifacts are Developer ID-signed. If Gatekeeper asks for confirmation on first launch, right-click the app → **Open**, or allow it under System Settings → Privacy & Security.
 > **Windows**: builds are not code-signed yet (no Windows signing certificate). On first run SmartScreen may show "Windows protected your PC" — click **More info → Run anyway**. This is expected behavior.
 > **Linux**: installers are still in the works; watch future releases.
 
@@ -146,7 +146,7 @@ Or download from [GitHub Releases](https://github.com/Alfred-Lau/promptman-commu
 - **Data stays on your machine** — prompts and skills live in a local SQLite database and embeddings run on-device; nothing is uploaded to any server by default
 - **No telemetry** — no PostHog / Sentry / third-party analytics SDKs, no usage data collected; the launch-time update check only fetches version metadata
 - **Works offline** — apart from the one-time ~100 MB embedding-model download on first launch, no network is required
-- **macOS: signed & notarized** — since v0.1.0 official artifacts are Developer ID-signed and Apple-notarized (evaluated as Notarized Developer ID); Gatekeeper opens them directly with no security overrides needed
+- **macOS: Developer ID-signed** — artifacts carry an Apple Developer ID signature; first launch may require right-click → Open
 - **Windows: unsigned** — no Windows code-signing certificate yet; SmartScreen may warn ("More info → Run anyway"). Expected behavior
 - **Cloud-sync boundary** — see "Cloud sync" below; data can only be synced if you explicitly configure and sign in to a self-hosted compatible backend
 
@@ -208,7 +208,7 @@ pnpm clear-cache
 ```
 
 **SmartScreen / "unknown publisher" warning on Windows?**
-Windows builds are not code-signed yet, so SmartScreen blocks once: click **More info → Run anyway** to install. macOS builds don't have this issue (signed & notarized).
+Windows builds are not code-signed yet, so SmartScreen blocks once: click **More info → Run anyway** to install. macOS installers are Developer ID-signed; if Gatekeeper asks on first launch, right-click → Open.
 
 **Where is my data?**
 

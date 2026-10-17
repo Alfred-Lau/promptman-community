@@ -30,7 +30,7 @@
   <a href="https://github.com/Alfred-Lau/promptman-community/releases">
     <img src="https://img.shields.io/github/downloads/Alfred-Lau/promptman-community/total?style=flat-square&label=Downloads&color=6366f1" alt="Total Downloads" />
   </a>
-  <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple%20Developer%20ID-2ea043?style=flat-square" alt="Signed & Notarized" />
+  <img src="https://img.shields.io/badge/Signed-Apple%20Developer%20ID-2ea043?style=flat-square" alt="Signed with Apple Developer ID" />
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
   </a>
@@ -43,7 +43,7 @@
 </p>
 
 <p align="center">
-  🛡️ <strong>当前开源版 v0.1.0 为「签名 + 公证」的安全版本</strong> — macOS 安装包已通过 Apple Developer ID 签名与 Apple 公证，Gatekeeper 可直接打开，无需右键绕过
+  🛡️ <strong>所有 Release 均从本仓库构建并发布在 GitHub Releases</strong> — macOS 安装包已使用 Apple Developer ID 签名。
 </p>
 
 <p align="center">
@@ -85,15 +85,15 @@ Prompt 越攒越多之后，真正的问题不是「存不下」，而是**找�
 
 也可直接从 [GitHub Releases](https://github.com/Alfred-Lau/promptman-community/releases/latest) 下载：
 
-> ⚡ **当前开源版（v0.1.0）即为签名 + 公证的正式构建**：macOS 产物使用 Apple Developer ID 签名并通过 Apple 公证（`spctl` 评估为 Notarized Developer ID），Gatekeeper 可直接打开，无需任何绕过操作。
+> ⚡ **macOS 产物已使用 Developer ID 签名**：安装包含 Apple Developer ID 签名。首次打开时如 Gatekeeper 请求确认，右键应用选择「打开」，或在「系统设置 → 隐私与安全性」中允许。
 
 | 平台 | 文件格式 | 状态 |
 |------|----------|------|
-| macOS (Apple Silicon / arm64) | `.dmg`（手动安装）/ `.zip`（自动更新） | ✅ 可用 · 已签名 + Apple 公证 |
+| macOS (Apple Silicon / arm64) | `.dmg`（手动安装）/ `.zip`（自动更新） | ✅ 可用 · Developer ID 签名 |
 | Windows (x64) | `.exe`（NSIS 安装包） | ✅ 可用 · 未签名（SmartScreen 会提示，见下方说明） |
 | Linux | `.AppImage` / `.deb` | 🚧 Coming Soon |
 
-> **macOS**：v0.1.0 起所有正式产物均已通过 Developer ID 签名与 Apple 公证，Gatekeeper 可直接打开，**无需**右键「打开」或到「系统设置 → 隐私与安全性」手动放行。
+> **macOS**：产物已使用 Developer ID 签名。首次打开如 Gatekeeper 请求确认，右键应用「打开」，或在「系统设置 → 隐私与安全性」中放行。
 > **Windows**：目前没有 Windows 代码签名证书，产物未签名。首次运行 SmartScreen 会提示「Windows 已保护你的电脑」——点击「更多信息 → 仍要运行」即可，属预期行为。
 > **Linux**：正式安装包仍在制作中，可留意后续 Release。
 
@@ -146,7 +146,7 @@ Prompt 越攒越多之后，真正的问题不是「存不下」，而是**找�
 - **数据全在本机** — Prompt / Skill 数据存于本机 SQLite，向量嵌入也在本机运行，默认不向任何服务器上传
 - **无遥测 / 无埋点** — 不含 PostHog / Sentry / 第三方分析 SDK，不采集任何使用数据；启动时的更新检查仅请求版本信息
 - **离线可用** — 除首次启动下载语义搜索模型（约 100 MB）外，日常使用无需联网
-- **macOS：签名 + 公证** — v0.1.0 起正式产物经 Developer ID 签名并通过 Apple 公证（评估为 Notarized Developer ID），Gatekeeper 可直接打开，无需绕过安全设置
+- **macOS：Developer ID 签名** — 安装包含 Apple Developer ID 签名，首次打开可能需要右键「打开」确认
 - **Windows：未签名说明** — 暂无 Windows 代码签名证书，产物未签名，SmartScreen 可能提示；属预期行为，点击「更多信息 → 仍要运行」即可
 - **云同步边界** — 见下文「☁️ 云同步」；仅在你显式配置并登录自部署的兼容后端后，才可能发生数据同步
 
@@ -208,7 +208,7 @@ pnpm clear-cache
 ```
 
 **Q: Windows 打开时提示 SmartScreen / 「未知发布者」？**
-Windows 版暂未做代码签名，SmartScreen 会拦截一次：点击「更多信息 → 仍要运行」即可正常安装。macOS 版不存在此问题（已签名 + 公证）。
+Windows 版暂未做代码签名，SmartScreen 会拦截一次：点击「更多信息 → 仍要运行」即可正常安装。macOS 版已使用 Developer ID 签名，首次打开如遇确认提示，右键「打开」即可。
 
 **Q: 数据存在哪里？**
 
