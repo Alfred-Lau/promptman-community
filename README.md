@@ -46,6 +46,10 @@
   🛡️ <strong>The current open-source release (v0.1.0) is signed & notarized</strong> — macOS installers are Apple Developer ID-signed and Apple-notarized, so Gatekeeper opens them directly. No workarounds needed.
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="PromptMan — Discover featured prompts & skills" width="920" />
+</p>
+
 ---
 
 ## Why PromptMan?

@@ -46,6 +46,10 @@
   🛡️ <strong>当前开源版 v0.1.0 为「签名 + 公证」的安全版本</strong> — macOS 安装包已通过 Apple Developer ID 签名与 Apple 公证，Gatekeeper 可直接打开，无需右键绕过
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="PromptMan — 发现精选提示词与技能" width="920" />
+</p>
+
 ---
 
 ## 为什么用 PromptMan？
